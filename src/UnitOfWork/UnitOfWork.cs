@@ -18,7 +18,7 @@ namespace Arch.EntityFrameworkCore.UnitOfWork
     /// Represents the default implementation of the <see cref="IUnitOfWork"/> and <see cref="IUnitOfWork{TContext}"/> interface.
     /// </summary>
     /// <typeparam name="TContext">The type of the db context.</typeparam>
-    public class UnitOfWork<TContext> : IRepositoryFactory, IUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext
+    public class UnitOfWork<TContext> : IRepositoryFactory, IUnitOfWork<TContext> where TContext : DbContext
     {
         private readonly TContext _context;
         private bool disposed = false;
@@ -189,19 +189,16 @@ namespace Arch.EntityFrameworkCore.UnitOfWork
         /// <param name="disposing">The disposing.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (!disposed && disposing)
             {
-                if (disposing)
+                // clear repositories
+                if (repositories != null)
                 {
-                    // clear repositories
-                    if (repositories != null)
-                    {
-                        repositories.Clear();
-                    }
-
-                    // dispose the db context.
-                    _context.Dispose();
+                    repositories.Clear();
                 }
+
+                // dispose the db context.
+                _context.Dispose();
             }
 
             disposed = true;
